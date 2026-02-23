@@ -1,11 +1,11 @@
 CC=gcc
-CFLAGS=-c -Wall -g -fprofile-arcs -ftest-coverage
-LDFLAGS=-lgcov
+CFLAGS=-c -Wall -g
+LDFLAGS=-lm
 
 all: main
 
 main: main.o 3d_vector.o complexType.o doubleType.o tests.o
-	$(CC) main.o 3d_vector.o complexType.o doubleType.o tests.o -o main $(LDFLAGS)
+	$(CC) main.o 3d_vector.o complexType.o doubleType.o tests.o  -o main $(LDFLAGS)
 
 main.o: main.c
 	$(CC) $(CFLAGS) main.c

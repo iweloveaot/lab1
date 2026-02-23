@@ -69,7 +69,8 @@ int isCompatible(const Vector3D* v1, const Vector3D* v2)
 }
 
 
-Vector3D* vectorAdd(const Vector3D* v1, const Vector3D* v2) {
+Vector3D* vectorAdd(const Vector3D* v1, const Vector3D* v2) 
+{
     if (!isCompatible(v1, v2)) 
     {
         fprintf(stderr, "Error: vectors are incompatible (different data types) or not initialized\n");
@@ -87,7 +88,8 @@ Vector3D* vectorAdd(const Vector3D* v1, const Vector3D* v2) {
 }
 
 
-int scalarProduct(const Vector3D* v1, const Vector3D* v2, void* product) {
+int scalarProduct(const Vector3D* v1, const Vector3D* v2, void* product) 
+{
     if (!isCompatible(v1, v2)) 
     {
         fprintf(stderr, "Error: vectors are incompatible (different data types) or not initialized\n");

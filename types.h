@@ -1,3 +1,4 @@
+#include <stddef.h>
 #ifndef _TYPEINFO_H_
 #define _TYPEINFO_H_
 
