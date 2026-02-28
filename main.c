@@ -67,7 +67,12 @@ void run_interactive_mode()
     while (command != 0) 
     {
         print_vector_menu();
-        scanf("%d", &command);
+        int code = scanf("%d", &command);
+        while (code != 1) {
+            printf("Incorrect input, please repeat\n");
+            while (getchar() != '\n');
+            code = scanf("%d", &command);
+    }
         
         switch (command) 
         {
@@ -84,7 +89,12 @@ void run_interactive_mode()
                 while (!(type_n == 1 || type_n == 2))
                 {
                     printf("Enter type of your vector (1-double/2-complex): ");
-                    scanf("%d", &type_n);
+                    int code = scanf("%d", &type_n);
+                    while (code != 1) {
+                        printf("Incorrect input, please repeat\n");
+                        while (getchar() != '\n');
+                        code = scanf("%d", &type_n);
+                    }
                     switch (type_n)
                     {
                         case 1:
@@ -132,7 +142,12 @@ void run_interactive_mode()
                 while (ind < 1 || ind > vector_count)
                 {
                     printf("Enter number of vector to change (1-%d): ", vector_count);
-                    scanf("%d", &ind);
+                    int code = scanf("%d", &ind);
+                    while (code != 1) {
+                        printf("Incorrect input, please repeat\n");
+                        while (getchar() != '\n');
+                        code = scanf("%d", &ind);
+                    }
                     if (ind < 1 || ind > vector_count) 
                         printf("There's no vector with this number, try again!\n");
                 }
@@ -161,7 +176,12 @@ void run_interactive_mode()
                 {
                     int for_lim;
                     printf("Vectors limit reached (15). Your result won't be saved. Continue adding? (1-yes/0-stop): ");
-                    scanf("%d", &for_lim);
+                    int code = scanf("%d", &for_lim);
+                    while (code != 1) {
+                        printf("Incorrect input, please repeat\n");
+                        while (getchar() != '\n');
+                        code = scanf("%d", &for_lim);
+                    }
                     if (!for_lim) break;
 
                 }
@@ -171,7 +191,13 @@ void run_interactive_mode()
                 while (i1 < 1 || i1 > vector_count || i2 < 1 || i2 > vector_count)
                 {
                     printf("Enter numbers of vectors to add (1-%d): ", vector_count);
-                    scanf("%d %d", &i1, &i2);
+                    int code = scanf("%d %d", &i1, &i2);
+                    while (code != 2) {
+                        printf("Incorrect input, please repeat\n");
+                        while (getchar() != '\n');
+                        code = scanf("%d %d", &i1, &i2);
+    }
+
                     if (i1 < 1 || i1 > vector_count || i2 < 1 || i2 > vector_count) 
                         printf("There're no vectors with these numbers, try again!\n");
                 }
@@ -209,7 +235,12 @@ void run_interactive_mode()
                 while (i1 < 1 || i1 > vector_count || i2 < 1 || i2 > vector_count)
                 {
                     printf("Enter numbers of vectors to multiply (1-%d): ", vector_count);
-                    scanf("%d %d", &i1, &i2);
+                    int code = scanf("%d %d", &i1, &i2);
+                    while (code != 2) {
+                        printf("Incorrect input, please repeat\n");
+                        while (getchar() != '\n');
+                        code = scanf("%d %d", &i1, &i2);
+                    }
                     if (i1 < 1 || i1 > vector_count || i2 < 1 || i2 > vector_count) 
                         printf("There're no vectors with these numbers, try again!\n");
                 }
@@ -242,7 +273,12 @@ void run_interactive_mode()
                 {
                     int for_lim;
                     printf("Vectors limit reached (15). Your result won't be saved. Continue adding? (1-yes/0-stop): ");
-                    scanf("%d\n", &for_lim);
+                    int code = scanf("%d", &for_lim);
+                    while (code != 1) {
+                        printf("Incorrect input, please repeat\n");
+                        while (getchar() != '\n');
+                        code = scanf("%d", &for_lim);
+                    }
                     if (!for_lim) break;
 
                 }
@@ -251,8 +287,13 @@ void run_interactive_mode()
                 show_vectors(vectors, vector_count);
                 while (i1 < 1 || i1 > vector_count || i2 < 1 || i2 > vector_count)
                 {
-                    printf("Enter numbers of vectors to add (1-%d): ", vector_count);
-                    scanf("%d %d", &i1, &i2);
+                    printf("Enter numbers of vectors to multiply (1-%d): ", vector_count);
+                    int code = scanf("%d %d", &i1, &i2);
+                    while (code != 2) {
+                        printf("Incorrect input, please repeat\n");
+                        while (getchar() != '\n');
+                        code = scanf("%d %d", &i1, &i2);
+                    }
                     if (i1 < 1 || i1 > vector_count || i2 < 1 || i2 > vector_count) 
                         printf("There're no vectors with these numbers, try again!\n");
                 }
@@ -307,7 +348,12 @@ int main()
     while (command != 0) 
     {
         printf("Enter the number of command: ");
-        scanf("%d", &command);
+        int code = scanf("%d", &command);
+        while (code != 1) {
+            printf("Incorrect input, please repeat\n");
+            while (getchar() != '\n');
+            code = scanf("%d", &command);
+        }
         printf("\n");
         switch (command) 
         {
