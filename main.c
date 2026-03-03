@@ -67,7 +67,13 @@ void run_interactive_mode()
     while (command != 0) 
     {
         print_vector_menu();
-        scanf("%d", &command);
+        int scaned = scanf("%d", &command);
+        while (scaned != 1) 
+        {
+            printf("Incorrect input, please repeat\n");
+            while (getchar() != '\n');
+            scaned = scanf("%d", &command);
+        }
         
         switch (command) 
         {
@@ -84,35 +90,45 @@ void run_interactive_mode()
                 while (!(type_n == 1 || type_n == 2))
                 {
                     printf("Enter type of your vector (1-double/2-complex): ");
-                    scanf("%d", &type_n);
+                    int scaned = scanf("%d", &type_n);
+                    while (scaned != 1) 
+                    {
+                        printf("Incorrect input, please repeat\n");
+                        while (getchar() != '\n');
+                        scaned = scanf("%d", &type_n);
+                    }
                     switch (type_n)
                     {
                         case 1:
                         {
-                            Vector3D *v = inputVector(ofDouble());
+                            Vector3D* v = (Vector3D*)malloc(sizeof(Vector3D));
+                            int init_err = inputVector(ofDouble(), v);
                             if (v) 
                             {
-                                vectors[vector_count++] = v;
-                                printf("Your new vector: ");
-                                printVector(v);
-                                printf("\n");
-                            } else {
-                                printf("Error while creating vector.\n");
-                            }
+                                if (!init_err)
+                                {
+                                    vectors[vector_count++] = v;
+                                    printf("Your new vector: ");
+                                    printVector(v);
+                                    printf("\n");
+                                } else printf("Error while vector initialization.\n");
+                            } else printf("Error allocating memory.\n");
                             break;
                         }
                         case 2:
                         {
-                            Vector3D *v = inputVector(ofComplex());
+                            Vector3D* v = (Vector3D*)malloc(sizeof(Vector3D));
+                            int init_err = inputVector(ofComplex(), v);
                             if (v) 
                             {
-                                vectors[vector_count++] = v;
-                                printf("Your new vector: ");
-                                printVector(v);
-                                printf("\n");
-                            } else {
-                                printf("Error while creating vector.\n");
-                            }
+                                if (!init_err)
+                                {
+                                    vectors[vector_count++] = v;
+                                    printf("Your new vector: ");
+                                    printVector(v);
+                                    printf("\n");
+                                } else printf("Error while vector initialization.\n");
+                            } else printf("Error allocating memory.\n");
                             break;
                         }
                         default:
@@ -132,19 +148,28 @@ void run_interactive_mode()
                 while (ind < 1 || ind > vector_count)
                 {
                     printf("Enter number of vector to change (1-%d): ", vector_count);
-                    scanf("%d", &ind);
+                    int scaned = scanf("%d", &ind);
+                    while (scaned != 1) {
+                        printf("Incorrect input, please repeat\n");
+                        while (getchar() != '\n');
+                        scaned = scanf("%d", &ind);
+                    }
                     if (ind < 1 || ind > vector_count) 
                         printf("There's no vector with this number, try again!\n");
                 }
 
-                Vector3D *new_v = inputVector(vectors[ind-1]->type_info);
+                Vector3D *new_v = (Vector3D*)malloc(sizeof(Vector3D));
+                int init_err = inputVector(vectors[ind-1]->type_info, new_v);
                 if (new_v)
                 {
-                    free(vectors[ind-1]);
-                    vectors[ind-1] = new_v;
-                    printf("Successfully changed.\n");
-                    printf("\n");
-                }
+                    if (!init_err)
+                    {
+                        deleteVector(vectors[ind-1]);
+                        vectors[ind-1] = new_v;
+                        printf("Successfully changed.\n");
+                        printf("\n");
+                    } else printf("Error while vector initialization.\n");  
+                } else printf("Error allocating memory.\n");
                 break;
             }
 
@@ -161,7 +186,12 @@ void run_interactive_mode()
                 {
                     int for_lim;
                     printf("Vectors limit reached (15). Your result won't be saved. Continue adding? (1-yes/0-stop): ");
-                    scanf("%d", &for_lim);
+                    int scaned = scanf("%d", &for_lim);
+                    while (scaned != 1) {
+                        printf("Incorrect input, please repeat\n");
+                        while (getchar() != '\n');
+                        scaned = scanf("%d", &for_lim);
+                    }
                     if (!for_lim) break;
 
                 }
@@ -171,27 +201,37 @@ void run_interactive_mode()
                 while (i1 < 1 || i1 > vector_count || i2 < 1 || i2 > vector_count)
                 {
                     printf("Enter numbers of vectors to add (1-%d): ", vector_count);
-                    scanf("%d %d", &i1, &i2);
+                    int scaned = scanf("%d %d", &i1, &i2);
+                    while (scaned != 2) {
+                        printf("Incorrect input, please repeat\n");
+                        while (getchar() != '\n');
+                        scaned = scanf("%d %d", &i1, &i2);
+    }
+
                     if (i1 < 1 || i1 > vector_count || i2 < 1 || i2 > vector_count) 
                         printf("There're no vectors with these numbers, try again!\n");
                 }
                 
-                Vector3D* sum = vectorAdd(vectors[i1-1], vectors[i2-1]);
+                Vector3D* sum = (Vector3D*)malloc(sizeof(Vector3D));
+                int init_err = vectorAdd(vectors[i1-1], vectors[i2-1], sum);
                 if (sum) 
                 {
-                    printf("Result vector: ");
-                    printVector(sum);
-                    printf("\n");
-                    
-                    if (vector_count < 10) 
+                    if (!init_err)
                     {
-                        vectors[vector_count++] = sum;
-                        printf("Result saved with number v%d\n", vector_count);
-                    } else {
-                        printf("Vectors limit reached (15). Your result weren't saved.\n");
-                        deleteVector(sum);
-                    }
-                }
+                        printf("Result vector: ");
+                        printVector(sum);
+                        printf("\n");
+                        
+                        if (vector_count < 10) 
+                        {
+                            vectors[vector_count++] = sum;
+                            printf("Result saved with number v%d\n", vector_count);
+                        } else {
+                            printf("Vectors limit reached (15). Your result weren't saved.\n");
+                            deleteVector(sum);
+                        }
+                    } else printf("Error while vector initialization.\n");
+                } else printf("Error allocating memory.\n");
                 break;
             }
             
@@ -209,7 +249,12 @@ void run_interactive_mode()
                 while (i1 < 1 || i1 > vector_count || i2 < 1 || i2 > vector_count)
                 {
                     printf("Enter numbers of vectors to multiply (1-%d): ", vector_count);
-                    scanf("%d %d", &i1, &i2);
+                    int scaned = scanf("%d %d", &i1, &i2);
+                    while (scaned != 2) {
+                        printf("Incorrect input, please repeat\n");
+                        while (getchar() != '\n');
+                        scaned = scanf("%d %d", &i1, &i2);
+                    }
                     if (i1 < 1 || i1 > vector_count || i2 < 1 || i2 > vector_count) 
                         printf("There're no vectors with these numbers, try again!\n");
                 }
@@ -242,7 +287,12 @@ void run_interactive_mode()
                 {
                     int for_lim;
                     printf("Vectors limit reached (15). Your result won't be saved. Continue adding? (1-yes/0-stop): ");
-                    scanf("%d\n", &for_lim);
+                    int scaned = scanf("%d", &for_lim);
+                    while (scaned != 1) {
+                        printf("Incorrect input, please repeat\n");
+                        while (getchar() != '\n');
+                        scaned = scanf("%d", &for_lim);
+                    }
                     if (!for_lim) break;
 
                 }
@@ -251,28 +301,37 @@ void run_interactive_mode()
                 show_vectors(vectors, vector_count);
                 while (i1 < 1 || i1 > vector_count || i2 < 1 || i2 > vector_count)
                 {
-                    printf("Enter numbers of vectors to add (1-%d): ", vector_count);
-                    scanf("%d %d", &i1, &i2);
+                    printf("Enter numbers of vectors to multiply (1-%d): ", vector_count);
+                    int scaned = scanf("%d %d", &i1, &i2);
+                    while (scaned != 2) {
+                        printf("Incorrect input, please repeat\n");
+                        while (getchar() != '\n');
+                        scaned = scanf("%d %d", &i1, &i2);
+                    }
                     if (i1 < 1 || i1 > vector_count || i2 < 1 || i2 > vector_count) 
                         printf("There're no vectors with these numbers, try again!\n");
                 }
                 
-                Vector3D* cross = crossProduct(vectors[i1-1], vectors[i2-1]);
+                Vector3D* cross = (Vector3D*)malloc(sizeof(Vector3D));
+                int init_err = crossProduct(vectors[i1-1], vectors[i2-1], cross);
                 if (cross) 
                 {
-                    printf("Result vector: ");
-                    printVector(cross);
-                    printf("\n");
-                    
-                    if (vector_count < 10) 
+                    if (!init_err)
                     {
-                        vectors[vector_count++] = cross;
-                        printf("Result saved with number v%d\n", vector_count);
-                    } else {
-                        printf("Vectors limit reached (15). Your result not saved.\n");
-                        deleteVector(cross);
-                    }
-                }
+                        printf("Result vector: ");
+                        printVector(cross);
+                        printf("\n");
+                        
+                        if (vector_count < 10) 
+                        {
+                            vectors[vector_count++] = cross;
+                            printf("Result saved with number v%d\n", vector_count);
+                        } else {
+                            printf("Vectors limit reached (15). Your result not saved.\n");
+                            deleteVector(cross);
+                        }
+                    } else printf("Error while vector initialization.\n");
+                } else printf("Error allocating memory.\n"); 
                 break;
             }
             
@@ -307,7 +366,12 @@ int main()
     while (command != 0) 
     {
         printf("Enter the number of command: ");
-        scanf("%d", &command);
+        int scaned = scanf("%d", &command);
+        while (scaned != 1) {
+            printf("Incorrect input, please repeat\n");
+            while (getchar() != '\n');
+            scaned = scanf("%d", &command);
+        }
         printf("\n");
         switch (command) 
         {

@@ -13,8 +13,16 @@ void test_double_operations()
     Double x1 = {1.0}, y1 = {2.0}, z1 = {3.0};
     Double x2 = {4.0}, y2 = {5.0}, z2 = {6.0};
     
-    Vector3D* v1 = createVectorWithElems(ofDouble(), &x1, &y1, &z1);
-    Vector3D* v2 = createVectorWithElems(ofDouble(), &x2, &y2, &z2);
+    Vector3D* v1 = (Vector3D*)malloc(sizeof(Vector3D));
+    Vector3D* v2 = (Vector3D*)malloc(sizeof(Vector3D)); 
+    if (!v1 || !v2) 
+    {
+        printf("Error allocating memory.\n");
+        return;
+    }
+    initVectorWithElems(ofDouble(), &x1, &y1, &z1, v1);
+    initVectorWithElems(ofDouble(), &x2, &y2, &z2, v2);
+        
     
     printf("v1 = ");
     printVector(v1);
@@ -23,8 +31,14 @@ void test_double_operations()
     printf("\n");
     
     // Тест сложения
-    Vector3D* sum = vectorAdd(v1, v2);
-    assert(sum != NULL);
+    Vector3D* sum = (Vector3D*)malloc(sizeof(Vector3D)); 
+    if (!sum) 
+    {
+        printf("Error allocating memory.\n");
+        return;
+    }
+    int add_init_err = vectorAdd(v1, v2, sum);
+    assert(add_init_err != -1);
     printf("v1 + v2 = ");
     printVector(sum);
     printf("\n");
@@ -45,8 +59,14 @@ void test_double_operations()
     assert(fabs((&sp)->value - (1.0*4.0 + 2.0*5.0 + 3.0*6.0)) < 1e-10);
     
     // Тест векторного произведения
-    Vector3D* cross = crossProduct(v1, v2);
-    assert(cross != NULL);
+    Vector3D* cross = (Vector3D*)malloc(sizeof(Vector3D)); 
+    if (!cross) 
+    {
+        printf("Error allocating memory.\n");
+        return;
+    }
+    int cross_init_err = crossProduct(v1, v2, cross);
+    assert(cross_init_err != -1);
     printf("v1 x v2 = ");
     printVector(cross);
     printf("\n");
@@ -73,8 +93,15 @@ void test_complex_operations()
     Complex x1 = {1.0, 1.0}, y1 = {2.0, 2.0}, z1 = {3.0, 3.0};
     Complex x2 = {1.0, -1.0}, y2 = {2.0, -2.0}, z2 = {3.0, -3.0};
     
-    Vector3D* v1 = createVectorWithElems(ofComplex(), &x1, &y1, &z1);
-    Vector3D* v2 = createVectorWithElems(ofComplex(), &x2, &y2, &z2);
+    Vector3D* v1 = (Vector3D*)malloc(sizeof(Vector3D)); 
+    Vector3D* v2 = (Vector3D*)malloc(sizeof(Vector3D)); 
+    if (!v1 || !v2) 
+    {
+        printf("Error allocating memory.\n");
+        return;
+    }
+    initVectorWithElems(ofComplex(), &x1, &y1, &z1, v1);
+    initVectorWithElems(ofComplex(), &x2, &y2, &z2, v2);
     
     printf("v1 = ");
     printVector(v1);
@@ -83,8 +110,14 @@ void test_complex_operations()
     printf("\n");
     
     // Тест сложения
-    Vector3D* sum = vectorAdd(v1, v2);
-    assert(sum != NULL);
+    Vector3D* sum = (Vector3D*)malloc(sizeof(Vector3D)); 
+    if (!sum) 
+    {
+        printf("Error allocating memory.\n");
+        return;
+    }
+    int add_init_err = vectorAdd(v1, v2, sum);
+    assert(add_init_err != -1);
     printf("v1 + v2 = ");
     printVector(sum);
     printf("\n");
@@ -105,8 +138,14 @@ void test_complex_operations()
     assert(fabs((&sp)->re - 28.0) < 1e-10 && fabs((&sp)->im) < 1e-10);
 
     // Тест векторного произведения
-    Vector3D* cross = crossProduct(v1, v2);
-    assert(cross != NULL);
+    Vector3D* cross = (Vector3D*)malloc(sizeof(Vector3D)); 
+    if (!cross) 
+    {
+        printf("Error allocating memory.\n");
+        return;
+    }
+    int cross_init_err = crossProduct(v1, v2, cross);
+    assert(cross_init_err != -1);
     printf("v1 x v2 = ");
     printVector(cross);
     printf("\n");
@@ -134,12 +173,25 @@ void test_error_cases()
     Double x1 = {1.0}, y1 = {2.0}, z1 = {3.0};
     Complex x2 = {1.0, 1.0}, y2 = {2.0, 2.0}, z2 = {3.0, 3.0};
     
-    Vector3D* v_double = createVectorWithElems(ofDouble(), &x1, &y1, &z1);
-    Vector3D* v_complex = createVectorWithElems(ofComplex(), &x2, &y2, &z2);
+    Vector3D* v_double = (Vector3D*)malloc(sizeof(Vector3D)); 
+    Vector3D* v_complex = (Vector3D*)malloc(sizeof(Vector3D)); 
+    if (!v_double || !v_complex) 
+    {
+        printf("Error allocating memory.\n");
+        return;
+    }
+    initVectorWithElems(ofDouble(), &x1, &y1, &z1, v_double);
+    initVectorWithElems(ofComplex(), &x2, &y2, &z2, v_complex);
     
     printf("Attempt to add vectors of different types:\n");
-    Vector3D* bad_sum = vectorAdd(v_double, v_complex);
-    assert(bad_sum == NULL);
+    Vector3D* bad_sum = (Vector3D*)malloc(sizeof(Vector3D)); 
+    if (!bad_sum) 
+    {
+        printf("Error allocating memory.\n");
+        return;
+    }
+    int add_init_err = vectorAdd(v_double, v_complex, bad_sum);
+    assert(add_init_err == -1);
     printf("\n");
     
     printf("Attempt to do a scalar product of vectors of different types:\n");
@@ -149,19 +201,28 @@ void test_error_cases()
     printf("\n");
     
     printf("Attempt to do a cross product of vectors of different types:\n");
-    Vector3D* bad_cross = crossProduct(v_double, v_complex);
-    assert(bad_cross == NULL);
+    Vector3D* bad_cross = (Vector3D*)malloc(sizeof(Vector3D)); 
+    if (!bad_cross) 
+    {
+        printf("Error allocating memory.\n");
+        return;
+    }
+    int cross_init_err = crossProduct(v_double, v_complex, bad_cross);
+    assert(cross_init_err == -1);
     printf("\n");
     
     printf("Attempt to operate on NULL pointers:\n");
     Double sp;
-    assert(vectorAdd(NULL, v_double) == NULL);
+    assert(vectorAdd(NULL, v_double, bad_sum) == -1);
+    assert(vectorAdd(v_double, v_double, NULL) == -1);
     assert(scalarProduct(v_double, NULL, &sp) == -1);
-    assert(crossProduct(NULL, NULL) == NULL);
+    assert(crossProduct(NULL, NULL, bad_sum) == -1);
     printf("\n");
     
     deleteVector(v_double);
     deleteVector(v_complex);
+    free(bad_sum);
+    free(bad_cross);
     
     printf("✓ All error cases tests passed\n");
 }

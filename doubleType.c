@@ -13,7 +13,12 @@ void printDouble(const void* a)
 void inputDouble(void* elem)
 {
     Double *d = (Double*)elem;
-    scanf("%lf", &(d->value));
+    int scaned = scanf("%lf", &(d->value));
+    while (scaned != 1) {
+        printf("Incorrect input, please repeat\n");
+        while (getchar() != '\n');
+        scaned = scanf("%lf", &(d->value));
+    }
 }
 
 void sumDouble(const void *a, const void *b, void *res)

@@ -14,7 +14,12 @@ void inputComplex(void* elem)
 {
     Complex *c = (Complex*)elem;
     printf("(format: re im) ");
-    scanf("%lf %lf", &(c->re), &(c->im));
+    int scaned = scanf("%lf %lf", &(c->re), &(c->im));
+    while (scaned != 2) {
+        printf("Incorrect input, please repeat\n");
+        while (getchar() != '\n');
+        scaned = scanf("%lf %lf", &(c->re), &(c->im));
+    }
 }
 
 

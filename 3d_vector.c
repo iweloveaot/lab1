@@ -4,12 +4,9 @@
 #include "3d_vector.h"
 
 
-Vector3D* createVector(TypeInfo* info)
+int initVector(TypeInfo* info, Vector3D* v)
 {
-    if (!info) return NULL;
-
-    Vector3D* v = (Vector3D*)malloc(sizeof(Vector3D));
-    if (!v) return NULL;
+    if (!info || !v) return -1;
 
     v->x = malloc(info->size);
     v->y = malloc(info->size);
@@ -21,15 +18,13 @@ Vector3D* createVector(TypeInfo* info)
         free(v->x);
         free(v->y);
         free(v->z);
-        free(v);
-        return NULL;
+        return -1; 
     }
 
     info->zero(v->x);
     info->zero(v->y);
     info->zero(v->z);
-
-    return v;
+    return 0;
 };
 
 
@@ -41,13 +36,12 @@ void setCoords(Vector3D* v, const void* x, const void* y, const void* z)
 }
 
 
-Vector3D* createVectorWithElems(TypeInfo* info, const void* x, const void* y, const void* z)
+int initVectorWithElems(TypeInfo* info, const void* x, const void* y, const void* z, Vector3D* v)
 {
-    Vector3D* v = createVector(info);
-    if (!v) return NULL;
-
-    setCoords(v, x, y, z);
-    return v;
+    int init_err = initVector(info, v);
+    if (!init_err) setCoords(v, x, y, z);
+    return init_err;
+    
 }
 
 
@@ -69,22 +63,22 @@ int isCompatible(const Vector3D* v1, const Vector3D* v2)
 }
 
 
-Vector3D* vectorAdd(const Vector3D* v1, const Vector3D* v2) 
+int vectorAdd(const Vector3D* v1, const Vector3D* v2, Vector3D* res) 
 {
     if (!isCompatible(v1, v2)) 
     {
         fprintf(stderr, "Error: vectors are incompatible (different data types) or not initialized\n");
-        return NULL;
+        return -1;
     }
 
-    Vector3D* res = createVector(v1->type_info);
-    if (!res) return NULL;
-
-    v1->type_info->add(v1->x, v2->x, res->x);
-    v1->type_info->add(v1->y, v2->y, res->y);
-    v1->type_info->add(v1->z, v2->z, res->z);
-
-    return res;
+    int init_err = initVector(v1->type_info, res);
+    if (!init_err)
+    {
+        v1->type_info->add(v1->x, v2->x, res->x);
+        v1->type_info->add(v1->y, v2->y, res->y);
+        v1->type_info->add(v1->z, v2->z, res->z);
+    }
+    return init_err;
 }
 
 
@@ -128,51 +122,52 @@ int scalarProduct(const Vector3D* v1, const Vector3D* v2, void* product)
 }
 
 
-Vector3D* crossProduct(const Vector3D* v1, const Vector3D* v2)
+int crossProduct(const Vector3D* v1, const Vector3D* v2, Vector3D* res)
 {
     if (!isCompatible(v1, v2)) 
     {
         fprintf(stderr, "Error: vectors are incompatible (different data types) or not initialized\n");
-        return NULL;
+        return -1;
     }
 
-    Vector3D* res = createVector(v1->type_info);
-    if (!res) return NULL;
-
-    void *temp1 = malloc(v1->type_info->size);
-    void *temp2 = malloc(v1->type_info->size);
-
-    if (!temp1 || !temp2) 
+    int init_err = initVector(v1->type_info, res);
+    if (!init_err)
     {
+        void *temp1 = malloc(v1->type_info->size);
+        void *temp2 = malloc(v1->type_info->size);
+
+        if (!temp1 || !temp2) 
+        {
+            free(temp1);
+            free(temp2);
+            deleteVector(res);
+            return -1;
+        }
+
+        // x = y1*z2 - z1*y2
+        v1->type_info->multiply(v1->y, v2->z, temp1);  // y1*z2
+        v1->type_info->multiply(v1->z, v2->y, temp2);  // z1*y2
+        v1->type_info->negative(temp2);  // -z1*y2
+        v1->type_info->add(temp1, temp2, res->x);  // y1*z2 - z1*y2
+
+        // y = - (x1*z2 - z1*x2)
+        v1->type_info->multiply(v1->x, v2->z, temp1);  // x1*z2
+        v1->type_info->multiply(v1->z, v2->x, temp2);  // z1*x2
+        v1->type_info->negative(temp2);  // -z1*x2
+        v1->type_info->add(temp1, temp2, res->y);  // x1*z2 - z1*x2
+        v1->type_info->negative(res->y);  // - (x1*z2 - z1*x2)
+
+        // z = x1*y2 - y1*x2
+        v1->type_info->multiply(v1->x, v2->y, temp1);  // x1*y2
+        v1->type_info->multiply(v1->y, v2->x, temp2);  // y1*x2
+        v1->type_info->negative(temp2);  // -y1*x2
+        v1->type_info->add(temp1, temp2, res->z); // x1*y2 - y1*x2
+
         free(temp1);
         free(temp2);
-        deleteVector(res);
-        return NULL;
     }
-
-    // x = y1*z2 - z1*y2
-    v1->type_info->multiply(v1->y, v2->z, temp1);  // y1*z2
-    v1->type_info->multiply(v1->z, v2->y, temp2);  // z1*y2
-    v1->type_info->negative(temp2);  // -z1*y2
-    v1->type_info->add(temp1, temp2, res->x);  // y1*z2 - z1*y2
-
-    // y = - (x1*z2 - z1*x2)
-    v1->type_info->multiply(v1->x, v2->z, temp1);  // x1*z2
-    v1->type_info->multiply(v1->z, v2->x, temp2);  // z1*x2
-    v1->type_info->negative(temp2);  // -z1*x2
-    v1->type_info->add(temp1, temp2, res->y);  // x1*z2 - z1*x2
-    v1->type_info->negative(res->y);  // - (x1*z2 - z1*x2)
-
-    // z = x1*y2 - y1*x2
-    v1->type_info->multiply(v1->x, v2->y, temp1);  // x1*y2
-    v1->type_info->multiply(v1->y, v2->x, temp2);  // y1*x2
-    v1->type_info->negative(temp2);  // -y1*x2
-    v1->type_info->add(temp1, temp2, res->z); // x1*y2 - y1*x2
-
-    free(temp1);
-    free(temp2);
-
-    return res;
+  
+    return init_err;
 }
 
 
@@ -195,9 +190,9 @@ int printVector(const Vector3D* v)
 }
 
 
-Vector3D* inputVector(TypeInfo* info) 
+int inputVector(TypeInfo* info, Vector3D* v) 
 {
-    if (!info) return NULL;
+    if (!info || !v) return -1;
 
     void* x = malloc(info->size);
     void* y = malloc(info->size);
@@ -208,7 +203,7 @@ Vector3D* inputVector(TypeInfo* info)
         free(x);
         free(y);
         free(z);
-        return NULL;
+        return -1;
     }
 
     printf("Input vector coordinates:\n");
@@ -220,12 +215,14 @@ Vector3D* inputVector(TypeInfo* info)
     printf("z: ");
     info->input(z); 
 
-    Vector3D* v = createVectorWithElems(info, x, y, z);
+    int init_err = initVectorWithElems(info, x, y, z, v);
+    if (!init_err)
+    {
+        free(x);
+        free(y);
+        free(z);
+    }
 
-    free(x);
-    free(y);
-    free(z);
-
-    return v;
+    return init_err;
 }
 
