@@ -1,2 +1,0 @@
-для CFLAGS: -fprofile-arcs -ftest-coverage
-LDFLAGS=-lgcov

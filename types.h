@@ -9,8 +9,10 @@ typedef struct TypeInfo
     void (*input)(void*);
     void (*add)(const void*, const void*, void*);
     void (*multiply)(const void*, const void*, void*);
+    void (*multiply_coef)(const void*, const double, void*);
     void (*negative)(void*);
     void (*zero)(void*);
+    void (*unit)(void*);
 } TypeInfo;
 
 

@@ -43,6 +43,15 @@ void multiplyComplex(const void *a, const void *b, void *res)
 }
 
 
+void multiplyCoefComplex(const void *elem, const double coef, void *res)
+{
+    const Complex *c = (Complex*)elem;
+    Complex *cres = (Complex*)res;
+    cres->re = c->re * coef;
+    cres->im = c->im * coef;
+}
+
+
 void negativeComplex(void* elem)
 {
     Complex *c = (Complex*)elem;
@@ -59,6 +68,14 @@ void zeroComplex(void* elem)
 }
 
 
+void unitComplex(void* elem)
+{
+    Complex *c = (Complex*)elem;
+    c->re = 1;
+    c->im = 0;
+}
+
+
 static TypeInfo complex_type =
 {
     .size = sizeof(Complex),
@@ -66,8 +83,10 @@ static TypeInfo complex_type =
     .input = inputComplex,
     .add = sumComplex,
     .multiply = multiplyComplex,
+    .multiply_coef = multiplyCoefComplex,
     .negative = negativeComplex,
-    .zero = zeroComplex
+    .zero = zeroComplex,
+    .unit = unitComplex
 };
 
 

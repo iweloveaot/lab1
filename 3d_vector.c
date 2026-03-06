@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <math.h>
 #include "3d_vector.h"
 
 
@@ -171,6 +172,226 @@ int crossProduct(const Vector3D* v1, const Vector3D* v2, Vector3D* res)
 }
 
 
+int rotateAroundAxis(const double angle, Vector3D* v, const char axis)
+{
+    if (!v) return -1;
+
+    Vector3D* unit_vector = (Vector3D*)malloc(sizeof(Vector3D));
+    int init_unit_err = initVector(v->type_info, unit_vector);
+    if (init_unit_err) 
+    {
+        deleteVector(unit_vector);
+        return -1;
+    }
+
+    void* ux = malloc(v->type_info->size);
+    void* uy = malloc(v->type_info->size);
+    void* uz = malloc(v->type_info->size);
+    if (!ux || !uy || !uz) 
+    {  
+        free(ux);
+        free(uy);
+        free(uz);
+        deleteVector(unit_vector);
+        return -1;
+    }
+
+    switch (axis)
+    {
+        case 'x':
+            v->type_info->unit(ux);
+            v->type_info->zero(uy);
+            v->type_info->zero(uz);
+            setCoords(unit_vector, &uz, &uy, &uz);
+            break;
+        
+        case 'y':
+            v->type_info->zero(ux);
+            v->type_info->unit(uy);
+            v->type_info->zero(uz);
+            setCoords(unit_vector, &uz, &uy, &uz);
+            break;
+
+        case 'z':
+            v->type_info->zero(ux);
+            v->type_info->zero(uy);
+            v->type_info->unit(uz);
+            setCoords(unit_vector, &uz, &uy, &uz);
+            break;
+        
+        default:
+            fprintf(stderr, "Error: indefinite axis {%c}", axis);
+            return -1;    
+    }
+    
+    void* scal_pr = malloc(v->type_info->size);
+    Vector3D* cr_pr = (Vector3D*)malloc(sizeof(Vector3D));
+    Vector3D* term1_1 = (Vector3D*)malloc(sizeof(Vector3D));
+    Vector3D* term1_2 = (Vector3D*)malloc(sizeof(Vector3D));
+    Vector3D* term2 = (Vector3D*)malloc(sizeof(Vector3D));
+    Vector3D* term3 = (Vector3D*)malloc(sizeof(Vector3D));
+    if (!scal_pr || !cr_pr || !term1_1 || !term1_2 || !term2 || !term3)
+    {
+        free(ux);
+        free(uy);
+        free(uz);
+        deleteVector(unit_vector);
+        free(scal_pr);
+        free(cr_pr);
+        free(term1_1);
+        free(term1_2);
+        free(term2);
+        free(term3);
+        return -1;
+    } 
+
+    int term1_1_init_err = initVector(v->type_info, term1_1);
+    int term2_init_err = initVector(v->type_info, term2);
+    int term3_init_err = initVector(v->type_info, term3);
+    if (term1_1_init_err || term2_init_err || term3_init_err)
+    {
+        free(ux);
+        free(uy);
+        free(uz);
+        deleteVector(unit_vector);
+        free(scal_pr);
+        free(cr_pr);
+        deleteVector(term1_1);
+        free(term1_2);
+        deleteVector(term2);
+        deleteVector(term3);
+        return -1;
+    }
+
+    int sc_pr_err = scalarProduct(v, unit_vector, scal_pr);
+    int cr_pr_err = crossProduct(unit_vector, v, cr_pr);
+    if (sc_pr_err || cr_pr_err) 
+    {
+        free(ux);
+        free(uy);
+        free(uz);
+        deleteVector(unit_vector);
+        free(scal_pr);
+        if (!cr_pr_err) deleteVector(cr_pr);
+        else free(cr_pr);
+        deleteVector(term1_1);
+        deleteVector(term1_2);
+        deleteVector(term2);
+        deleteVector(term3);
+        return -1;
+    }
+
+    v->type_info->multiply(unit_vector->x, scal_pr, term3->x);
+    v->type_info->multiply(unit_vector->y, scal_pr, term3->y);
+    v->type_info->multiply(unit_vector->z, scal_pr, term3->z);
+
+    double s = sin(angle), c = cos(angle);
+    v->type_info->multiply_coef(cr_pr->x, s, term2->x);
+    v->type_info->multiply_coef(cr_pr->y, s, term2->y);
+    v->type_info->multiply_coef(cr_pr->z, s, term2->z);
+
+    v->type_info->multiply(unit_vector->x, scal_pr, term1_1->x);
+    v->type_info->multiply(unit_vector->y, scal_pr, term1_1->y);
+    v->type_info->multiply(unit_vector->z, scal_pr, term1_1->z);
+    v->type_info->negative(term1_1->x);
+    v->type_info->negative(term1_1->y);
+    v->type_info->negative(term1_1->z);
+
+    int add_err = vectorAdd(v, term1_1, term1_2);
+    if (add_err) 
+    {
+        free(ux);
+        free(uy);
+        free(uz);
+        deleteVector(unit_vector);
+        free(scal_pr);
+        deleteVector(cr_pr);
+        deleteVector(term1_1);
+        free(term1_2);
+        deleteVector(term2);
+        deleteVector(term3);
+        return -1;
+    }
+    v->type_info->multiply_coef(term1_2->x, c, term1_2->x);
+    v->type_info->multiply_coef(term1_2->y, c, term1_2->y);
+    v->type_info->multiply_coef(term1_2->z, c, term1_2->z);
+    
+    Vector3D* result = (Vector3D*)malloc(sizeof(Vector3D));
+    Vector3D* mid_result = (Vector3D*)malloc(sizeof(Vector3D));
+    if (!result || !mid_result)
+    {
+        free(ux);
+        free(uy);
+        free(uz);
+        deleteVector(unit_vector);
+        free(scal_pr);
+        deleteVector(cr_pr);
+        deleteVector(term1_1);
+        deleteVector(term1_2);
+        deleteVector(term2);
+        deleteVector(term3);
+        free(result);
+        free(mid_result);
+        return -1;
+    }
+    
+    int mid_sum_err = vectorAdd(term1_2, term2, mid_result);
+    if (mid_sum_err)
+    {
+        free(ux);
+        free(uy);
+        free(uz);
+        deleteVector(unit_vector);
+        free(scal_pr);
+        deleteVector(cr_pr);
+        deleteVector(term1_1);
+        deleteVector(term1_2);
+        deleteVector(term2);
+        deleteVector(term3);
+        free(result);
+        free(mid_result);
+        return -1;
+    }
+    int res_sum_err = vectorAdd(mid_result, term3, result);
+    if (res_sum_err)
+    {
+        free(ux);
+        free(uy);
+        free(uz);
+        deleteVector(unit_vector);
+        free(scal_pr);
+        deleteVector(cr_pr);
+        deleteVector(term1_1);
+        deleteVector(term1_2);
+        deleteVector(term2);
+        deleteVector(term3);
+        free(result);
+        deleteVector(mid_result);
+        return -1;
+    } 
+
+    double one = 1.0;
+    v->type_info->multiply_coef(result->x, one, v->x);
+    v->type_info->multiply_coef(result->y, one, v->y);
+    v->type_info->multiply_coef(result->z, one, v->z);
+
+    free(ux);
+    free(uy);
+    free(uz);
+    deleteVector(unit_vector);
+    free(scal_pr);
+    deleteVector(cr_pr);
+    deleteVector(term1_1);
+    deleteVector(term1_2);
+    deleteVector(term2);
+    deleteVector(term3);
+    deleteVector(result);
+    deleteVector(mid_result);
+
+    return 0;
+}
+
+
 int printVector(const Vector3D* v) 
 {
     if (!v) 
@@ -216,12 +437,9 @@ int inputVector(TypeInfo* info, Vector3D* v)
     info->input(z); 
 
     int init_err = initVectorWithElems(info, x, y, z, v);
-    if (!init_err)
-    {
-        free(x);
-        free(y);
-        free(z);
-    }
+    free(x);
+    free(y);
+    free(z);
 
     return init_err;
 }

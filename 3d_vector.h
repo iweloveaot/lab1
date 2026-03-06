@@ -20,6 +20,7 @@ void deleteVector(Vector3D*);
 int vectorAdd(const Vector3D*, const Vector3D*, Vector3D*);
 int scalarProduct(const Vector3D*, const Vector3D*, void*);
 int crossProduct(const Vector3D*, const Vector3D*, Vector3D*);
+int rotateAroundAxis(const double, Vector3D*, const char);
 
 int isCompatible(const Vector3D*, const Vector3D*);
 int printVector(const Vector3D*);

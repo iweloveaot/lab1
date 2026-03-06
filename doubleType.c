@@ -39,6 +39,14 @@ void multiplyDouble(const void *a, const void *b, void *res)
 }
 
 
+void multiplyCoefDouble(const void *elem, const double coef, void *res)
+{
+    const Double *d = (Double*)elem;
+    Double *dres = (Double*)res;
+    dres->value = d->value * coef;
+}
+
+
 void negativeDouble(void* elem)
 {
     Double *d = (Double*)elem;
@@ -53,6 +61,13 @@ void zeroDouble(void* elem)
 }
 
 
+void unitDouble(void* elem)
+{
+    Double *d = (Double*)elem;
+    d->value = 1;
+}
+
+
 static TypeInfo double_type =
 {
     .size = sizeof(Double),
@@ -60,8 +75,10 @@ static TypeInfo double_type =
     .input = inputDouble,
     .add = sumDouble,
     .multiply = multiplyDouble,
+    .multiply_coef = multiplyCoefDouble,
     .negative = negativeDouble,
-    .zero = zeroDouble
+    .zero = zeroDouble,
+    .unit = unitDouble
 };
 
 

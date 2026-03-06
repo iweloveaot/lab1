@@ -4,7 +4,12 @@
 #include <ctype.h>
 #include "3d_vector.h"
 #include "tests.h"
+#define PI 3.14
 
+double deg_to_rad(double angle)
+{
+    return angle * PI / 180;
+}
 
 void print_menu() 
 {
@@ -213,6 +218,7 @@ void run_interactive_mode()
                 }
                 
                 Vector3D* sum = (Vector3D*)malloc(sizeof(Vector3D));
+
                 int init_err = vectorAdd(vectors[i1-1], vectors[i2-1], sum);
                 if (sum) 
                 {
@@ -230,8 +236,16 @@ void run_interactive_mode()
                             printf("Vectors limit reached (15). Your result weren't saved.\n");
                             deleteVector(sum);
                         }
-                    } else printf("Error while vector initialization.\n");
-                } else printf("Error allocating memory.\n");
+                    } else 
+                    {
+                        printf("Error while vector initialization.\n");
+                        free(sum);
+                    }
+                } else 
+                {
+                    printf("Error allocating memory.\n");
+                    free(sum);
+                }
                 break;
             }
             
@@ -330,8 +344,16 @@ void run_interactive_mode()
                             printf("Vectors limit reached (15). Your result not saved.\n");
                             deleteVector(cross);
                         }
-                    } else printf("Error while vector initialization.\n");
-                } else printf("Error allocating memory.\n"); 
+                    } else 
+                    {
+                        printf("Error while vector initialization.\n");
+                        free(cross);
+                    }
+                } else
+                {
+                    printf("Error allocating memory.\n"); 
+                    free(cross);
+                } 
                 break;
             }
             
