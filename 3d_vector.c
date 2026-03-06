@@ -220,7 +220,7 @@ int rotateAroundAxis(const double angle, Vector3D* v, const char axis)
             break;
         
         default:
-            fprintf(stderr, "Error: indefinite axis {%c}", axis);
+            fprintf(stderr, "Error: indefinite axis %c", axis);
             return -1;    
     }
     
@@ -370,8 +370,8 @@ int rotateAroundAxis(const double angle, Vector3D* v, const char axis)
         return -1;
     } 
 
-    double one = 1.0;
-    v->type_info->multiply_coef(result->x, one, v->x);
+    const double one = 1.0;
+    v->type_info->multiply_coef(result->x, one, v->x);\
     v->type_info->multiply_coef(result->y, one, v->y);
     v->type_info->multiply_coef(result->z, one, v->z);
 

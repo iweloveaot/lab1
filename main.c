@@ -4,7 +4,8 @@
 #include <ctype.h>
 #include "3d_vector.h"
 #include "tests.h"
-#define PI 3.14
+#define PI 3.1415926535
+#define buf_cleaner while (getchar() != '\n')
 
 double deg_to_rad(double angle)
 {
@@ -25,11 +26,12 @@ void print_vector_menu()
 {
     printf("1. Create vector\n");
     printf("2. Change vector\n");
-    printf("3. Add two vectors\n");
-    printf("4. Calculate scalar product\n");
-    printf("5. Calculate cross product\n");
-    printf("6. Show all vectors\n");
-    printf("7. Clear all vectors\n");
+    printf("3. Rotate vector\n");
+    printf("4. Add two vectors\n");
+    printf("5. Calculate scalar product\n");
+    printf("6. Calculate cross product\n");
+    printf("7. Show all vectors\n");
+    printf("8. Clear all vectors\n");
     printf("0. Back to main menu\n");
     printf("Enter the number of command: ");
 }
@@ -76,7 +78,7 @@ void run_interactive_mode()
         while (scaned != 1) 
         {
             printf("Incorrect input, please repeat\n");
-            while (getchar() != '\n');
+            buf_cleaner;
             scaned = scanf("%d", &command);
         }
         
@@ -99,7 +101,7 @@ void run_interactive_mode()
                     while (scaned != 1) 
                     {
                         printf("Incorrect input, please repeat\n");
-                        while (getchar() != '\n');
+                        buf_cleaner;
                         scaned = scanf("%d", &type_n);
                     }
                     switch (type_n)
@@ -156,7 +158,7 @@ void run_interactive_mode()
                     int scaned = scanf("%d", &ind);
                     while (scaned != 1) {
                         printf("Incorrect input, please repeat\n");
-                        while (getchar() != '\n');
+                        buf_cleaner;
                         scaned = scanf("%d", &ind);
                     }
                     if (ind < 1 || ind > vector_count) 
@@ -178,7 +180,56 @@ void run_interactive_mode()
                 break;
             }
 
-            case 3: 
+            case 3:
+            {
+                int ind=0;
+                show_vectors(vectors, vector_count);
+                while (ind < 1 || ind > vector_count)
+                {
+                    printf("Enter number of vector to change (1-%d): ", vector_count);
+                    int scaned = scanf("%d", &ind);
+                    while (scaned != 1) {
+                        printf("Incorrect input, please repeat\n");
+                        buf_cleaner;
+                        scaned = scanf("%d", &ind);
+                    }
+                    if (ind < 1 || ind > vector_count) 
+                        printf("There's no vector with this number, try again!\n");
+                }
+                
+                double deg_angle;
+                printf("Enter the angle to rotate vector on: ");
+                int scaned_ang = scanf("%lf", &deg_angle);
+                while (scaned_ang != 1) 
+                {
+                    printf("Incorrect input, please repeat\n");
+                    buf_cleaner;
+                    scaned_ang = scanf("%lf", &deg_angle);
+                }
+                double angle = deg_to_rad(deg_angle);
+
+                buf_cleaner;
+                char axis;
+                printf("Enter the axis to rotate vector around: ");
+                axis = getchar();
+                buf_cleaner;
+                while (axis != 'x' && axis != 'y' && axis != 'z') {
+                    printf("Incorrect input, please repeat\n");
+                    axis = getchar();
+                    buf_cleaner;
+                }
+
+                int rot_err = rotateAroundAxis(angle, vectors[ind-1], axis);
+                if (rot_err) printf("Error while rotating vector!\n");
+                else 
+                {
+                    printf("Vector is successfully rotated:\n");
+                    printVector(vectors[ind-1]);
+                }
+                break;
+            }
+
+            case 4: 
             {
                 if (vector_count < 2) 
                 {
@@ -194,7 +245,7 @@ void run_interactive_mode()
                     int scaned = scanf("%d", &for_lim);
                     while (scaned != 1) {
                         printf("Incorrect input, please repeat\n");
-                        while (getchar() != '\n');
+                        buf_cleaner;
                         scaned = scanf("%d", &for_lim);
                     }
                     if (!for_lim) break;
@@ -209,9 +260,9 @@ void run_interactive_mode()
                     int scaned = scanf("%d %d", &i1, &i2);
                     while (scaned != 2) {
                         printf("Incorrect input, please repeat\n");
-                        while (getchar() != '\n');
+                        buf_cleaner;
                         scaned = scanf("%d %d", &i1, &i2);
-    }
+                    }
 
                     if (i1 < 1 || i1 > vector_count || i2 < 1 || i2 > vector_count) 
                         printf("There're no vectors with these numbers, try again!\n");
@@ -249,7 +300,7 @@ void run_interactive_mode()
                 break;
             }
             
-            case 4: 
+            case 5: 
             {
                 if (vector_count < 2) 
                 {
@@ -266,7 +317,7 @@ void run_interactive_mode()
                     int scaned = scanf("%d %d", &i1, &i2);
                     while (scaned != 2) {
                         printf("Incorrect input, please repeat\n");
-                        while (getchar() != '\n');
+                        buf_cleaner;
                         scaned = scanf("%d %d", &i1, &i2);
                     }
                     if (i1 < 1 || i1 > vector_count || i2 < 1 || i2 > vector_count) 
@@ -288,7 +339,7 @@ void run_interactive_mode()
                 break;
             }
             
-            case 5: 
+            case 6: 
             {
                 if (vector_count < 2) 
                 {
@@ -304,7 +355,7 @@ void run_interactive_mode()
                     int scaned = scanf("%d", &for_lim);
                     while (scaned != 1) {
                         printf("Incorrect input, please repeat\n");
-                        while (getchar() != '\n');
+                        buf_cleaner;
                         scaned = scanf("%d", &for_lim);
                     }
                     if (!for_lim) break;
@@ -319,7 +370,7 @@ void run_interactive_mode()
                     int scaned = scanf("%d %d", &i1, &i2);
                     while (scaned != 2) {
                         printf("Incorrect input, please repeat\n");
-                        while (getchar() != '\n');
+                        buf_cleaner;
                         scaned = scanf("%d %d", &i1, &i2);
                     }
                     if (i1 < 1 || i1 > vector_count || i2 < 1 || i2 > vector_count) 
@@ -357,11 +408,11 @@ void run_interactive_mode()
                 break;
             }
             
-            case 6: // Показать векторы
+            case 7: // Показать векторы
                 show_vectors(vectors, vector_count);
                 break;
                 
-            case 7: // Очистить векторы
+            case 8: // Очистить векторы
                 clear_vectors(vectors, vector_count);
                 vector_count = 0;
                 break;
@@ -371,7 +422,7 @@ void run_interactive_mode()
                 break;
                 
             default:
-                printf("Unavailable number of command! Available numbers: 1 2 3 4 5 6 7 0.\n");
+                printf("Unavailable number of command! Available numbers: 1 2 3 4 5 6 7 8 0.\n");
                 printf("\n");
         }
     }
@@ -391,7 +442,7 @@ int main()
         int scaned = scanf("%d", &command);
         while (scaned != 1) {
             printf("Incorrect input, please repeat\n");
-            while (getchar() != '\n');
+            buf_cleaner;
             scaned = scanf("%d", &command);
         }
         printf("\n");
