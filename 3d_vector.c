@@ -202,21 +202,21 @@ int rotateAroundAxis(const double angle, Vector3D* v, const char axis)
             v->type_info->unit(ux);
             v->type_info->zero(uy);
             v->type_info->zero(uz);
-            setCoords(unit_vector, &uz, &uy, &uz);
+            setCoords(unit_vector, ux, uy, uz);
             break;
         
         case 'y':
             v->type_info->zero(ux);
             v->type_info->unit(uy);
             v->type_info->zero(uz);
-            setCoords(unit_vector, &uz, &uy, &uz);
+            setCoords(unit_vector, ux, uy, uz);
             break;
 
         case 'z':
             v->type_info->zero(ux);
             v->type_info->zero(uy);
             v->type_info->unit(uz);
-            setCoords(unit_vector, &uz, &uy, &uz);
+            setCoords(unit_vector, ux, uy, uz);
             break;
         
         default:
@@ -280,6 +280,8 @@ int rotateAroundAxis(const double angle, Vector3D* v, const char axis)
         deleteVector(term3);
         return -1;
     }
+    printVector(cr_pr);
+    v->type_info->print(scal_pr);
 
     v->type_info->multiply(unit_vector->x, scal_pr, term3->x);
     v->type_info->multiply(unit_vector->y, scal_pr, term3->y);
